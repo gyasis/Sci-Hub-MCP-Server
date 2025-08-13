@@ -1,7 +1,7 @@
 from typing import Any, List, Dict, Optional, Union
 import asyncio
 import logging
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 from sci_hub_search import search_paper_by_doi, search_paper_by_title, search_papers_by_keyword, download_paper
 
 # Setup logging
@@ -15,6 +15,7 @@ async def search_scihub_by_doi(doi: str) -> Dict[str, Any]:
     logging.info(f"Searching for paper with DOI: {doi}")
     """
     Search for a paper on Sci-Hub using its DOI (Digital Object Identifier).
+    Note: This may take up to 90 seconds due to Sci-Hub API response time.
 
     Args:
         doi (str): The Digital Object Identifier of the paper, a unique alphanumeric string 
@@ -33,6 +34,8 @@ async def search_scihub_by_doi(doi: str) -> Dict[str, Any]:
     try:
         result = await asyncio.to_thread(search_paper_by_doi, doi)
         return result
+    except asyncio.TimeoutError:
+        return {"error": "Request timed out after 90 seconds. Sci-Hub may be slow or unavailable."}
     except Exception as e:
         return {"error": f"An error occurred while searching by DOI: {str(e)}"}
 
@@ -41,6 +44,7 @@ async def search_scihub_by_title(title: str) -> Dict[str, Any]:
     logging.info(f"Searching for paper with title: {title}")
     """
     Search for a paper on Sci-Hub using its title.
+    Note: This may take up to 90 seconds due to CrossRef and Sci-Hub API response times.
 
     Args:
         title (str): The full or partial title of the academic paper to search for.
@@ -66,6 +70,7 @@ async def search_scihub_by_keyword(keyword: str, num_results: int = 10) -> List[
     logging.info(f"Searching for papers with keyword: {keyword}, number of results: {num_results}")
     """
     Search for papers on Sci-Hub using a keyword.
+    Note: This typically takes 10-30 seconds for metadata retrieval.
 
     Args:
         keyword (str): The keyword or search term to use for finding relevant papers.

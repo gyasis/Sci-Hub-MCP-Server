@@ -19,63 +19,91 @@ The Sci-Hub MCP Server provides a bridge between AI assistants and Sci-Hub's rep
 ### Prerequisites
 
 - Python 3.10+
-- FastMCP library
+- uv (Python package manager) - [Install UV](https://github.com/astral-sh/uv)
 
 ### Installation
 
 1. Clone the repository:
-   ```
-   git clone https://github.com/JackKuo666/Sci-Hub-MCP-Server.git
+   ```bash
+   git clone https://github.com/gyasis/Sci-Hub-MCP-Server.git
    cd Sci-Hub-MCP-Server
    ```
 
-2. Install the required dependencies:
+2. Install dependencies using uv:
+   ```bash
+   uv sync
    ```
-   pip install -r requirements.txt
+
+3. (Optional) Install development dependencies:
+   ```bash
+   uv sync --extra dev
    ```
 
 ## 📊 Usage
 
-Start the MCP server:
+### Development Mode (Testing with MCP Inspector)
+
+Start the MCP server with the MCP Inspector for interactive testing:
 
 ```bash
-python sci_hub_server.py
+# Using uv directly
+uv run fastmcp dev sci_hub_server.py
+
+# Or using the convenience script
+./run_dev.sh
 ```
 
-## Usage with Claude Desktop
+The MCP Inspector will be available at: http://127.0.0.1:6274
 
-Add this configuration to your `claude_desktop_config.json`:
+### Production Mode (For MCP Clients)
 
-(Mac OS)
+Start the MCP server for production use with MCP clients:
+
+```bash
+uv run python sci_hub_server.py
+```
+
+## 🔧 MCP Client Configuration
+
+### For Cursor IDE
+
+Add this configuration to your `~/.cursor/mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "scihub": {
-      "command": "python",
-      "args": ["-m", "sci_hub_server.py"]
-      }
-  }
-}
-```
-
-(Windows version):
-
-```json
-{
-  "mcpServers": {
-    "scihub": {
-      "command": "C:\\Users\\YOUR\\PATH\\miniconda3\\envs\\mcp_server\\python.exe",
-      "args": [
-        "D:\\code\\YOUR\\PATH\\Sci-Hub-MCP-Server\\sci_hub_server.py"
-      ],
+      "command": "/home/gyasis/.local/bin/uv",
+      "args": ["run", "--directory", "/home/gyasis/Documents/code/Sci-Hub-MCP-Server", "python", "sci_hub_server.py"],
+      "cwd": "/home/gyasis/Documents/code/Sci-Hub-MCP-Server",
       "env": {},
-      "disabled": false,
-      "autoApprove": []
+      "enabled": true
     }
   }
 }
 ```
+
+**Note:** Replace the paths with your actual project location.
+
+### For Claude Desktop
+
+Add this configuration to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "scihub": {
+      "command": "/path/to/your/project/.venv/bin/python",
+      "args": ["/path/to/your/project/sci_hub_server.py"],
+      "cwd": "/path/to/your/project",
+      "env": {},
+      "enabled": true
+    }
+  }
+}
+```
+
+**Note:** Replace `/path/to/your/project` with your actual project path.
 
 ## 🛠 MCP Tools
 
@@ -126,14 +154,42 @@ Can you show me the metadata for the paper with DOI 10.1038/nature09492?
 
 - `sci_hub_server.py`: The main MCP server implementation using FastMCP
 - `sci_hub_search.py`: Contains the logic for searching Sci-Hub and retrieving paper information
+- `pyproject.toml`: Project configuration and dependencies (uv-based)
+- `run_dev.sh`: Convenience script for starting development mode
+- `.venv/`: Virtual environment created by uv (auto-generated)
 
 ## 🔧 Dependencies
 
 - Python 3.10+
-- FastMCP
-- requests
-- bs4
+- uv (Python package manager)
+- fastmcp>=2.0.0
+- requests>=2.31.0
+- beautifulsoup4>=4.12.0
+- mcp>=0.1.0
 - scihub
+
+All dependencies are managed through `pyproject.toml` and can be installed with `uv sync`.
+
+## 🔍 Troubleshooting
+
+### Common Issues
+
+**1. "No module named 'fastmcp'" error**
+- Make sure you've run `uv sync` to install dependencies
+- Ensure you're using the virtual environment: `uv run python sci_hub_server.py`
+
+**2. MCP client connection fails**
+- Verify your MCP client configuration paths are correct
+- Check that the server starts without errors: `uv run python sci_hub_server.py`
+- Ensure the `cwd` (current working directory) is set correctly
+
+**3. "TypeError: unexpected keyword argument 'timeout'"**
+- This has been fixed in the current version
+- The server now uses `mcp.run(transport='stdio')` without timeout parameter
+
+**4. Development vs Production confusion**
+- **Development**: Use `uv run fastmcp dev sci_hub_server.py` for testing with MCP Inspector
+- **Production**: Use `uv run python sci_hub_server.py` for MCP client integration
 
 ## 🤝 Contributing
 
