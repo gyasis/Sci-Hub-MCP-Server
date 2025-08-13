@@ -19,7 +19,9 @@ The Sci-Hub MCP Server provides a bridge between AI assistants and Sci-Hub's rep
 ### Prerequisites
 
 - Python 3.10+
-- uv (Python package manager) - [Install UV](https://github.com/astral-sh/uv)
+- Choose one package manager:
+  - **Option A:** uv (recommended) - [Install UV](https://github.com/astral-sh/uv)
+  - **Option B:** pip with venv (traditional approach)
 
 ### Installation
 
@@ -29,14 +31,30 @@ The Sci-Hub MCP Server provides a bridge between AI assistants and Sci-Hub's rep
    cd Sci-Hub-MCP-Server
    ```
 
-2. Install dependencies using uv:
+2. Install dependencies:
+
+   **Option A: Using UV (Recommended)**
    ```bash
+   # Install all dependencies from pyproject.toml
    uv sync
+   
+   # (Optional) Install development dependencies
+   uv sync --extra dev
    ```
 
-3. (Optional) Install development dependencies:
+   **Option B: Using traditional venv**
    ```bash
-   uv sync --extra dev
+   # Create virtual environment
+   python -m venv .venv
+   
+   # Activate virtual environment
+   # On Linux/Mac:
+   source .venv/bin/activate
+   # On Windows:
+   # .venv\Scripts\activate
+   
+   # Install dependencies
+   pip install -r requirements.txt
    ```
 
 ## 📊 Usage
@@ -45,6 +63,7 @@ The Sci-Hub MCP Server provides a bridge between AI assistants and Sci-Hub's rep
 
 Start the MCP server with the MCP Inspector for interactive testing:
 
+**Option A: Using UV**
 ```bash
 # Using uv directly
 uv run fastmcp dev sci_hub_server.py
@@ -53,29 +72,51 @@ uv run fastmcp dev sci_hub_server.py
 ./run_dev.sh
 ```
 
+**Option B: Using traditional venv**
+```bash
+# Activate your virtual environment first
+source .venv/bin/activate  # Linux/Mac
+# or .venv\Scripts\activate  # Windows
+
+# Run the development server
+fastmcp dev sci_hub_server.py
+```
+
 The MCP Inspector will be available at: http://127.0.0.1:6274
 
 ### Production Mode (For MCP Clients)
 
 Start the MCP server for production use with MCP clients:
 
+**Option A: Using UV**
 ```bash
 uv run python sci_hub_server.py
+```
+
+**Option B: Using traditional venv**
+```bash
+# Activate your virtual environment first
+source .venv/bin/activate  # Linux/Mac
+# or .venv\Scripts\activate  # Windows
+
+# Run the server
+python sci_hub_server.py
 ```
 
 ## 🔧 MCP Client Configuration
 
 ### For Cursor IDE
 
+**Option A: Using UV (Recommended)**
 Add this configuration to your `~/.cursor/mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "scihub": {
-      "command": "/home/gyasis/.local/bin/uv",
-      "args": ["run", "--directory", "/home/gyasis/Documents/code/Sci-Hub-MCP-Server", "python", "sci_hub_server.py"],
-      "cwd": "/home/gyasis/Documents/code/Sci-Hub-MCP-Server",
+      "command": "/home/your-username/.local/bin/uv",
+      "args": ["run", "--directory", "/path/to/Sci-Hub-MCP-Server", "python", "sci_hub_server.py"],
+      "cwd": "/path/to/Sci-Hub-MCP-Server",
       "env": {},
       "enabled": true
     }
@@ -83,19 +124,35 @@ Add this configuration to your `~/.cursor/mcp.json`:
 }
 ```
 
-**Note:** Replace the paths with your actual project location.
+**Option B: Using traditional venv**
+```json
+{
+  "mcpServers": {
+    "scihub": {
+      "command": "/path/to/Sci-Hub-MCP-Server/.venv/bin/python",
+      "args": ["sci_hub_server.py"],
+      "cwd": "/path/to/Sci-Hub-MCP-Server",
+      "env": {},
+      "enabled": true
+    }
+  }
+}
+```
+
+**Note:** Replace paths with your actual project location.
 
 ### For Claude Desktop
 
+**Option A: Using UV**
 Add this configuration to your `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "scihub": {
-      "command": "/path/to/your/project/.venv/bin/python",
-      "args": ["/path/to/your/project/sci_hub_server.py"],
-      "cwd": "/path/to/your/project",
+      "command": "uv",
+      "args": ["run", "--directory", "/path/to/Sci-Hub-MCP-Server", "python", "sci_hub_server.py"],
+      "cwd": "/path/to/Sci-Hub-MCP-Server",
       "env": {},
       "enabled": true
     }
@@ -103,7 +160,22 @@ Add this configuration to your `claude_desktop_config.json`:
 }
 ```
 
-**Note:** Replace `/path/to/your/project` with your actual project path.
+**Option B: Using traditional venv**
+```json
+{
+  "mcpServers": {
+    "scihub": {
+      "command": "/path/to/Sci-Hub-MCP-Server/.venv/bin/python",
+      "args": ["/path/to/Sci-Hub-MCP-Server/sci_hub_server.py"],
+      "cwd": "/path/to/Sci-Hub-MCP-Server",
+      "env": {},
+      "enabled": true
+    }
+  }
+}
+```
+
+**Note:** Replace `/path/to/Sci-Hub-MCP-Server` with your actual project path.
 
 ## 🛠 MCP Tools
 
